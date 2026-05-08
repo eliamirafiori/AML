@@ -1,5 +1,6 @@
-import torch.nn as nn
 import clip
+import torch
+import torch.nn as nn
 
 
 class CLIPCITE(nn.Module):
