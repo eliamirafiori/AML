@@ -16,7 +16,7 @@ conda env create -n aml python=3.10
 ```
 
 ```bash
-conda install --yes cudatoolkit=11.0
+conda install --yes cudatoolkit=12.1
 ```
 
 ```bash
@@ -39,7 +39,7 @@ pip install git+https://github.com/openai/CLIP.git
 
 3. Implement and test the fine-tuning proposed in [Fully Fine-tuned CLIP models](https://arxiv.org/pdf/2407.04003)
 
-4. Here what I propose as "novel": if it works and we see an improvement on results, then we can proceed to do data augmentation with SAM
+4. Here what Elia proposes as "novel": if it works and we see an improvement on results, then we can proceed to do data augmentation with SAM
 
 5. Now we can use the augmented dataset and repeat the process of 3. with the new dataset
 
