@@ -22,6 +22,8 @@ class CITELoss(nn.Module):
         logits = s_img @ s_txt.t() * self.logit_scale.exp()
 
         ground_truth = torch.arange(len(logits), device=logits.device)
+
+        # Classic LOSS used by CLIP
         loss_con = (
             F.cross_entropy(logits, ground_truth)
             + F.cross_entropy(logits.t(), ground_truth)

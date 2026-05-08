@@ -10,14 +10,14 @@ LR = 1e-6
 SHOTS = 16
 EPOCHS = 10
 
-model = CLIPCITE().cuda()
+model = CLIPCITE().cuda() # CLIP-CITE model with a student and teacher, on the GPU
 loader = get_few_shot_loader("./data/train", model.preprocess, n_shots=SHOTS)
 criterion = CITELoss(alpha=0.5, beta=0.5)
-optimizer = torch.optim.AdamW(model.student.parameters(), lr=LR, weight_decay=0.1)
+optimizer = torch.optim.AdamW(model.student.parameters(), lr=LR, weight_decay=0.1) # only optimize the student, teacher is fixed
 
 # Text tokens for classes (e.g., "a photo of a cat")
 class_names = [c.replace("_", " ") for c in loader.dataset.dataset.classes]
-text_tokens = clip.tokenize([f"a photo of a {c}" for c in class_names]).cuda()
+text_tokens = clip.tokenize([f"a photo of a {c}" for c in class_names]).cuda() 
 
 for epoch in range(EPOCHS):
     for images, labels in loader:

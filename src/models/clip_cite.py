@@ -4,12 +4,12 @@ import torch.nn as nn
 
 
 class CLIPCITE(nn.Module):
-    def __init__(self, model_name="ViT-B/16"):
+    def __init__(self, model_name="ViT-B/16"): # 
         super().__init__()
-        # The Student: All parameters set to requires_grad = True
+        # The Student: All parameters set to requires_grad = True, allowing it to learn and adapt during training
         self.student, _ = clip.load(model_name, device="cuda")
 
-        # The Teacher: Parameters frozen to preserve original knowledge
+        # The Teacher: Parameters frozen to preserve original knowledge, ensuring it serves as a stable reference for the student during distillation
         self.teacher, _ = clip.load(model_name, device="cuda")
         for param in self.teacher.parameters():
             param.requires_grad = False
