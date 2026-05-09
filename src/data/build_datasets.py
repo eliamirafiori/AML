@@ -3,6 +3,22 @@ import os
 from torch.utils.data import Subset, DataLoader
 from torchvision import datasets
 
+from src.data.csv_dataset import CLIPCSVDataset
+
+
+def build_train_set():
+    os.makedirs("./train", exist_ok=True)
+
+    with open("./release/train.csv", "r") as f:
+        next(f)
+        for line in f:
+            filename, label = line.split(",")
+            os.rename(f"./release/images/{filename}", f"./train/{filename}")
+
+    os.makedirs("./test", exist_ok=True)
+    for filename in os.listdir("./release/images"):
+        os.rename(f"./release/images/{filename}", f"./test/{filename}")
+
 
 def get_few_shot_loader(root, transform, n_shots=16, batch_size=32):
 
@@ -18,6 +34,29 @@ def get_few_shot_loader(root, transform, n_shots=16, batch_size=32):
             indices.append(idx)
             class_counts[label] += 1
 
-    few_shot_set = Subset(dataset, indices) # Create a subset of the dataset using the selected indices
+    few_shot_set = Subset(dataset, indices)
+    return DataLoader(few_shot_set, batch_size=batch_size, shuffle=True)
 
-    return DataLoader(few_shot_set, batch_size=batch_size, shuffle=True) # Create a DataLoader for the few-shot dataset with shuffling enabled
+
+from torch.utils.data import Subset, DataLoader
+
+
+def get_csv_few_shot_loader(csv_path, img_dir, transform, n_shots=5, batch_size=32):
+    full_dataset = CLIPCSVDataset(csv_path, img_dir, transform)
+
+    # Create a balanced few-shot subset
+    indices = []
+    counts = {cls: 0 for cls in full_dataset.classes}
+
+    # Iterate through the dataframe and pick shots
+    for i, row in full_dataset.df.iterrows():
+        cls = row["label"]
+        if counts[cls] < n_shots:
+            indices.append(i)
+            counts[cls] += 1
+
+    few_shot_dataset = Subset(full_dataset, indices)
+    return (
+        DataLoader(few_shot_dataset, batch_size=batch_size, shuffle=True),
+        full_dataset.classes,
+    )
