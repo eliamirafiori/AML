@@ -34,38 +34,29 @@ optimizer = torch.optim.AdamW(model.student.parameters(), lr=LR, weight_decay=0.
 class_names = [c for c in train_loader.dataset.dataset.classes]
 text_tokens = clip.tokenize([f"a photo of a {c}" for c in class_names]).cuda()
 
-# 1. Get classes
-class_names = train_loader.dataset.dataset.classes
-
-# 2. Verify prompts (Section 3.1)
-# Paper uses "a photo of a [category]"
-prompts = [f"a photo of a {c}" for c in class_names]
-all_class_tokens = clip.tokenize(prompts).cuda()
-
-# 3. Inside the loop, compute features dynamically
-# This follows the "Fully Fine-tuned" requirement
-all_class_features = model.student.encode_text(all_class_tokens)
-all_class_features = all_class_features / all_class_features.norm(dim=-1, keepdim=True)
-
 for epoch in range(EPOCHS):
     model.train()
     loss_meter = AverageMeter()
 
     # Pre-compute class prototypes for this epoch
-    # all_class_features = get_all_class_features(model, class_names, "cuda")
+    all_class_tokens = clip.tokenize([f"a photo of a {c}" for c in class_names]).cuda()
 
     for i, (images, labels) in enumerate(train_loader):
         images, labels = images.cuda(), labels.cuda()
 
+        optimizer.zero_grad()
+        
+        all_class_features = model.student.encode_text(all_class_tokens)
+        all_class_features = all_class_features / all_class_features.norm(dim=-1, keepdim=True)
+
         # Select the specific text prompts for the classes present in this batch
-        batch_text = text_tokens[labels]
+        batch_text = all_class_features[labels]
 
         # Forward pass
         s_feats, t_feats = model(images, batch_text)
         loss = criterion(s_feats, t_feats, labels, all_class_features)
 
         # Backward pass
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
@@ -75,7 +66,7 @@ for epoch in range(EPOCHS):
     print(f"Epoch [{epoch}] Training Loss: {loss_meter.avg:.4f}")
 
     # Use the validate function from test.py
-    current_acc = validate(model, val_loader, class_names)
+    current_acc = validate(model, train_loader, class_names)
     print(f"Epoch [{epoch}] Val Accuracy: {current_acc:.2f}%")
 
     is_best = current_acc > best_acc
