@@ -3,10 +3,11 @@ import os
 from torch.utils.data import Subset, DataLoader
 from torchvision import datasets
 
-from src.data.csv_dataset import CLIPCSVDataset
+from src.data.TrainClass import TrainDataset
 
 
-def build_train_set():
+def build_train_test_partition():
+
     os.makedirs("./train", exist_ok=True)
 
     with open("./release/train.csv", "r") as f:
@@ -38,11 +39,8 @@ def get_few_shot_loader(root, transform, n_shots=16, batch_size=32):
     return DataLoader(few_shot_set, batch_size=batch_size, shuffle=True)
 
 
-from torch.utils.data import Subset, DataLoader
-
-
 def get_csv_few_shot_loader(csv_path, img_dir, transform, n_shots=5, batch_size=32):
-    full_dataset = CLIPCSVDataset(csv_path, img_dir, transform)
+    full_dataset = TrainDataset(csv_path, img_dir, transform)
 
     # Create a balanced few-shot subset
     indices = []

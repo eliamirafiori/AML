@@ -5,11 +5,12 @@ import os
 
 from src.models.clip_cite import CLIPCITE
 from src.models.loss import CITELoss
-from src.data.build_datasets import get_csv_few_shot_loader, get_few_shot_loader
+from src.data.build_datasets import build_train_test_partition, get_csv_few_shot_loader, get_few_shot_loader
 from src.utils.utility import get_all_class_features
 from src.utils.meters import AverageMeter
 from src.utils.checkpoint import save_checkpoint
-from test import validate
+from src.evaluation import validate
+
 
 LR = 1e-6
 SHOTS = 5
