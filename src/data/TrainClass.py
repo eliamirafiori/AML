@@ -4,10 +4,6 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 from torchvision import transforms
 
-GLOBAL_PATH = os.getcwd()
-IMGS_PATH = os.path.join(GLOBAL_PATH, 'src','data', 'release','train_images')
-TRAIN_CSV_PATH = os.path.join(GLOBAL_PATH, 'src','data', 'release','train.csv')
-
 
 class TrainDataset(Dataset):
 
@@ -40,13 +36,6 @@ class TrainDataset(Dataset):
         Im = self.T(Im)
 
         return Im, label
-
-
-
-train_dataset = TrainDataset(IMGS_PATH, TRAIN_CSV_PATH)
-
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-
 
 
 
